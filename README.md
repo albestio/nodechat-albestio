@@ -1,0 +1,4 @@
+nodechat-albestio
+=================
+
+Probando Openshift
