@@ -39,9 +39,7 @@ var SampleApp = function() {
      */
     self.populateCache = function() {
         if (typeof self.zcache === "undefined") {
-            self.zcache = { 'index.html': '' ,
-                            ''
-                          };
+            self.zcache = { 'index.html': ''};
         }
 
         //  Local cache for static content.
