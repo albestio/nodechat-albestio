@@ -1,8 +1,13 @@
 #!/bin/env node
 //  OpenShift sample Node application
-var express = require('express');
-var fs      = require('fs');
-
+var express        = require('express'),
+    fs             = require('fs');
+    bodyParser     = require('body-parser'),
+    methodOverride = require('method-override'),
+    routes         = require('./routes'),
+    api            = require('./routes/api'),
+    http           = require('http'),
+    path           = require('path');
 
 /**
  *  Define the sample application.
@@ -39,11 +44,11 @@ var SampleApp = function() {
      */
     self.populateCache = function() {
         if (typeof self.zcache === "undefined") {
-            self.zcache = { 'index.html': ''};
+            self.zcache = { 'views/layout.jade': ''};
         }
 
         //  Local cache for static content.
-        self.zcache['index.html'] = fs.readFileSync('./index.html');
+        self.zcache['views/layout.jade'] = fs.readFileSync('views/layout.jade');
     };
 
 
@@ -102,10 +107,11 @@ var SampleApp = function() {
             res.send("<html><body><img src='" + link + "'></body></html>");
         };
 
-        self.routes['/'] = function(req, res) {
-            res.setHeader('Content-Type', 'text/html');
-            res.send(self.cache_get('index.html') );
-        };
+        // self.routes['*'] = function(req, res) {
+        //     routes.index;
+        // };
+
+        self.routes['/'] = routes.index;
     };
 
 
@@ -115,7 +121,14 @@ var SampleApp = function() {
      */
     self.initializeServer = function() {
         self.createRoutes();
-        self.app = express();
+        self.app = module.exports = express();
+
+        // Configuración
+        self.app.set('views', __dirname + '/views');
+        self.app.set('view engine', 'jade');
+        self.app.use(bodyParser());
+        self.app.use(methodOverride());
+        self.app.use(express.static(path.join(__dirname, 'public')));
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
