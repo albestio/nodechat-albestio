@@ -8,6 +8,7 @@ var express        = require('express'),
     api            = require('./routes/api'),
     http           = require('http'),
     path           = require('path');
+    //errorhandler   = require('errorhandler');
 
 /**
  *  Define the sample application.
@@ -27,8 +28,8 @@ var SampleApp = function() {
      */
     self.setupVariables = function() {
         //  Set the environment variables we need.
-        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP;
         self.port      = process.env.OPENSHIFT_NODEJS_PORT || 8080;
+        self.ipaddress = process.env.OPENSHIFT_NODEJS_IP || process.env.OPENSHIFT_INTERNAL_IP;
 
         if (typeof self.ipaddress === "undefined") {
             //  Log errors on OpenShift but continue w/ 127.0.0.1 - this
@@ -107,11 +108,15 @@ var SampleApp = function() {
             res.send("<html><body><img src='" + link + "'></body></html>");
         };
 
-        // self.routes['*'] = function(req, res) {
-        //     routes.index;
-        // };
+        self.routes['/partials/:name'] = routes.partials;
 
         self.routes['/'] = routes.index;
+
+
+        // redirect all others to the index (HTML5 history)
+        self.routes['*'] = function(req, res) {
+            routes.index;
+        };     
     };
 
 
@@ -123,12 +128,16 @@ var SampleApp = function() {
         self.createRoutes();
         self.app = module.exports = express();
 
+        // JSON API
+        self.app.get('/api/name', api.name);
+
         // Configuración
         self.app.set('views', __dirname + '/views');
         self.app.set('view engine', 'jade');
         self.app.use(bodyParser());
         self.app.use(methodOverride());
         self.app.use(express.static(path.join(__dirname, 'public')));
+        //self.app.use(errorhandler);
 
         //  Add handlers for the app (from the routes).
         for (var r in self.routes) {
