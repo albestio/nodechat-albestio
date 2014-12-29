@@ -7,6 +7,7 @@ var express        = require('express'),
     routes         = require('./routes'),
     api            = require('./routes/api'),
     http           = require('http'),
+    morgan         = require('morgan'),
     path           = require('path');
     //errorhandler   = require('errorhandler');
 
